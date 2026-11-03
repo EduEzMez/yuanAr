@@ -310,7 +310,7 @@ var TYPES=[
   {k:'contadoconliqui',n:'CCL'},{k:'tarjeta',n:'Tarjeta'},{k:'cripto',n:'Cripto'},{k:'mayorista',n:'Mayorista'}
 ];
 var CHIPS=[10,50,100,200,500,1000,5000];
-var DEF={tipo:'blue',cnyMode:'api',cnyManual:null,arsMode:'api',arsManual:null,amount:'',cache:{cny:null,ars:null},ackCny:null,ackArs:null,feeOn:false,feePct:3,feeMin:200};
+var DEF={tipo:'blue',cnyMode:'api',cnyManual:null,arsMode:'api',arsManual:null,amount:'',cache:{cny:null,ars:null},ackCny:null,ackArs:null,feeOn:false,feePct:3,feeMin:0,feeV:2};
 
 function clone(o){return JSON.parse(JSON.stringify(o))}
 function load(){
@@ -318,6 +318,7 @@ function load(){
   catch(e){return clone(DEF)}
 }
 var S=load();
+if(S.feeV!==2){S.feeMin=0;S.feeV=2;}
 var storageOk=true;
 function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){storageOk=false}}
 var run={errCny:false,errArs:false,loading:false,first:true};
