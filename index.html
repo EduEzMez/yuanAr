@@ -13,6 +13,10 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="YuanAR">
+<script>
+(function(){try{var t=localStorage.getItem('yuanar:theme');
+if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
+</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-180.png">
@@ -21,16 +25,25 @@
 :root{
   --paper:#F2F5F4; --surface:#FFFFFF; --ink:#13232F; --muted:#5B6E76; --line:#DCE4E2;
   --jade:#0F7A63; --jade-soft:#E3F1ED; --cinnabar:#C23B2E; --cinnabar-soft:#FBE9E6;
-  --amber:#9A6A00; --amber-soft:#FBF1D9;
+  --amber:#9A6A00; --amber-soft:#FBF1D9; --on-jade:#FFFFFF;
   --r-lg:20px; --r-md:12px; --r-sm:8px;
   --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
   color-scheme:light;
 }
-@media (prefers-color-scheme:dark){:root{
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --paper:#0D181E; --surface:#14232B; --ink:#E5EEEB; --muted:#93A6AC; --line:#22363F;
   --jade:#3CC4A0; --jade-soft:#123A33; --cinnabar:#F06A5C; --cinnabar-soft:#3A1C1A;
-  --amber:#E7B84B; --amber-soft:#352A10; color-scheme:dark;
+  --amber:#E7B84B; --amber-soft:#352A10; --on-jade:#062720; color-scheme:dark;
 }}
+:root[data-theme="dark"]{
+  --paper:#0D181E; --surface:#14232B; --ink:#E5EEEB; --muted:#93A6AC; --line:#22363F;
+  --jade:#3CC4A0; --jade-soft:#123A33; --cinnabar:#F06A5C; --cinnabar-soft:#3A1C1A;
+  --amber:#E7B84B; --amber-soft:#352A10; --on-jade:#062720; color-scheme:dark;
+}
+body{transition:background-color .2s,color .2s}
+.theme-btn .sun{display:none}
+.is-dark .theme-btn .sun{display:block}
+.is-dark .theme-btn .moon{display:none}
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%;height:100%}
 body{font-family:var(--font);background:var(--paper);color:var(--ink);min-height:100%;
@@ -64,7 +77,7 @@ header{display:flex;align-items:center;gap:10px;padding:6px 0 14px}
 .amount-row:focus-within{border-color:var(--jade)}
 .seal{flex:none;width:48px;height:48px;border:2.5px solid var(--cinnabar);color:var(--cinnabar);border-radius:7px;
   display:grid;place-items:center;font-weight:800;font-size:1.6rem;transform:rotate(-4deg);transition:background .2s,color .2s}
-.seal.manual{background:var(--cinnabar);color:#fff}
+.seal.manual{background:var(--cinnabar);color:var(--surface)}
 #amount{flex:1;min-width:0;border:0;outline:0;background:transparent;font-size:clamp(2rem,9vw,2.6rem);font-weight:700;letter-spacing:-.02em}
 #amount::placeholder{color:var(--line)}
 .clear{width:36px;height:36px;border-radius:50%;background:var(--paper);color:var(--muted);font-size:1.2rem;flex:none}
@@ -88,8 +101,7 @@ header{display:flex;align-items:center;gap:10px;padding:6px 0 14px}
 .notice.error{background:var(--cinnabar-soft);border-left-color:var(--cinnabar)}
 .notice.ask{background:var(--jade-soft);border-left-color:var(--jade)}
 .notice .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.btn{padding:10px 14px;border-radius:10px;font-weight:700;font-size:.92rem;background:var(--jade);color:#fff}
-@media (prefers-color-scheme:dark){.btn{color:#062720}}
+.btn{padding:10px 14px;border-radius:10px;font-weight:700;font-size:.92rem;background:var(--jade);color:var(--on-jade)}
 .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
 .btn.block{width:100%;padding:14px}
 
@@ -134,6 +146,12 @@ h2{font-size:1rem;font-weight:700;margin:22px 0 4px}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:12px;font-size:.9rem;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s;z-index:30}
 .toast.show{opacity:1}
 
+@media (max-width:400px){
+  header{gap:6px}
+  .icon-btn{width:38px;height:38px}
+  .brand small{display:none}
+  .pill{padding:6px 8px}
+}
 @media (min-width:900px){
   .app{max-width:1040px;padding-top:24px}
   .layout{display:grid;grid-template-columns:1.1fr 1fr;gap:28px;align-items:start}
@@ -152,6 +170,10 @@ h2{font-size:1rem;font-weight:700;margin:22px 0 4px}
     <span id="status" class="pill loading" role="status">Cargando</span>
     <button id="refresh" class="icon-btn" aria-label="Actualizar cotizaciones">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
+    </button>
+    <button id="themeBtn" class="icon-btn theme-btn" aria-label="Cambiar a modo oscuro">
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
     </button>
     <button id="openSettings" class="icon-btn" aria-label="Configurar cotizaciones">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
@@ -492,11 +514,32 @@ $('saveSettings').onclick=function(){
 };
 $('resetAll').onclick=function(){
   if(!confirm('¿Borrar la configuración y las cotizaciones guardadas?'))return;
-  try{localStorage.removeItem(LS)}catch(e){}
+  try{localStorage.removeItem(LS);localStorage.removeItem(THEME_KEY)}catch(e){}
+  applyTheme();
   S=clone(DEF);amountEl.value='';closeSheet();render();refresh();
 };
 
 var tt;function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('show')},2200)}
+
+/* ---------- Modo claro / oscuro ---------- */
+var THEME_KEY='yuanar:theme';
+var mq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+function savedTheme(){try{return localStorage.getItem(THEME_KEY)}catch(e){return null}}
+function currentDark(){var t=savedTheme();if(t==='dark')return true;if(t==='light')return false;return !!(mq&&mq.matches)}
+function applyTheme(){
+  var t=savedTheme(),root=document.documentElement,dark=currentDark();
+  if(t==='light'||t==='dark')root.setAttribute('data-theme',t);else root.removeAttribute('data-theme');
+  root.classList.toggle('is-dark',dark);
+  $('themeBtn').setAttribute('aria-label',dark?'Cambiar a modo claro':'Cambiar a modo oscuro');
+  var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',dark?'#0D181E':'#0F7A63');
+}
+$('themeBtn').onclick=function(){
+  var next=currentDark()?'light':'dark';
+  try{localStorage.setItem(THEME_KEY,next)}catch(e){}
+  applyTheme();toast(next==='dark'?'Modo oscuro':'Modo claro');
+};
+if(mq){var onMq=function(){if(!savedTheme())applyTheme()};mq.addEventListener?mq.addEventListener('change',onMq):mq.addListener(onMq)}
+applyTheme();
 
 /* ---------- Arranque ---------- */
 render();refresh();
