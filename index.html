@@ -150,6 +150,14 @@ h2{font-size:1rem;font-weight:700;margin:22px 0 4px}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:12px;font-size:.9rem;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s;z-index:30}
 .toast.show{opacity:1}
 
+.fee{display:flex;align-items:center;gap:12px;margin-top:6px;padding:12px 0 2px;border-top:1px solid var(--line);cursor:pointer}
+.fee > span{flex:1;font-size:.95rem}
+.fee b{display:block;font-weight:700}
+.fee.on .via{color:var(--cinnabar);font-weight:600}
+.switch{appearance:none;-webkit-appearance:none;flex:none;width:50px;height:30px;border-radius:999px;background:var(--line);position:relative;cursor:pointer;transition:background .2s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.switch:checked{background:var(--jade)}
+.switch:checked::after{transform:translateX(20px)}
 .install{display:flex;align-items:center;gap:12px;margin-top:14px;background:var(--surface);border:1.5px dashed var(--jade);border-radius:var(--r-lg);padding:12px 14px}
 .install[hidden],[hidden]{display:none!important}
 .install img{width:44px;height:44px;border-radius:11px;flex:none}
@@ -207,6 +215,10 @@ h2{font-size:1rem;font-weight:700;margin:22px 0 4px}
           <div class="res"><div class="lbl"><b>Dólares</b>US$</div><div class="val num" id="outUsd">—</div></div>
           <div class="res ars"><div class="lbl"><b>Pesos</b><span id="outVia" class="via">—</span></div><div class="val num" id="outArs">—</div></div>
         </div>
+        <label class="fee" id="feeRow" for="feeToggle">
+          <span><b>Sumar comisión del pago</b><span class="via" id="feeInfo"></span></span>
+          <input type="checkbox" class="switch" id="feeToggle" role="switch">
+        </label>
       </div>
       <div class="install" id="installCard" hidden>
         <img src="icon-192.png" alt="">
@@ -258,6 +270,15 @@ h2{font-size:1rem;font-weight:700;margin:22px 0 4px}
       <p class="err" id="arsErr"></p>
     </div>
 
+    <div class="field">
+      <b>Comisión del pago</b>
+      <p class="hint" style="margin-top:0">Se suma al importe cuando activás "Sumar comisión" en la pantalla principal. Alipay y WeChat Pay suelen cobrar un porcentaje con tarjeta extranjera a partir de cierto monto; verificá las condiciones vigentes antes de viajar.</p>
+      <div class="inp"><span>Porcentaje</span><input id="feePct" inputmode="decimal" autocomplete="off" placeholder="3"><span>%</span></div>
+      <div class="inp"><span>A partir de ¥</span><input id="feeMin" inputmode="decimal" autocomplete="off" placeholder="0 (siempre)"></div>
+      <p class="hint">Si el importe es menor a ese monto, no se suma comisión. Dejalo vacío para aplicarla siempre.</p>
+      <p class="err" id="feeErr"></p>
+    </div>
+
     <div class="field" id="installField">
       <b>Instalar la app</b>
       <p class="hint" style="margin-top:0">Recomendado antes de viajar: así abre sin conexión.</p>
@@ -289,7 +310,7 @@ var TYPES=[
   {k:'contadoconliqui',n:'CCL'},{k:'tarjeta',n:'Tarjeta'},{k:'cripto',n:'Cripto'},{k:'mayorista',n:'Mayorista'}
 ];
 var CHIPS=[10,50,100,200,500,1000,5000];
-var DEF={tipo:'blue',cnyMode:'api',cnyManual:null,arsMode:'api',arsManual:null,amount:'',cache:{cny:null,ars:null},ackCny:null,ackArs:null};
+var DEF={tipo:'blue',cnyMode:'api',cnyManual:null,arsMode:'api',arsManual:null,amount:'',cache:{cny:null,ars:null},ackCny:null,ackArs:null,feeOn:false,feePct:3,feeMin:200};
 
 function clone(o){return JSON.parse(JSON.stringify(o))}
 function load(){
@@ -406,15 +427,32 @@ function arsEff(){
 function typeName(k){for(var i=0;i<TYPES.length;i++)if(TYPES[i].k===k)return TYPES[i].n;return k}
 function differs(a,b){return a&&b&&Math.abs(a-b)/b>0.0005}
 
+/* ---------- Comisión ---------- */
+function feeApplies(amt){return S.feeOn&&S.feePct>0&&isFinite(amt)&&amt>0&&!(S.feeMin&&amt<S.feeMin)}
+function feeFor(amt){return feeApplies(amt)?amt*S.feePct/100:0}
+function pctTxt(){return String(S.feePct).replace('.',',')+' %'}
+function renderFee(amt,fee){
+  var info,cond=S.feeMin?' desde ¥ '+money(S.feeMin).replace(',00',''):'';
+  $('feeToggle').checked=!!S.feeOn;
+  if(!S.feeOn)info='Desactivada ('+pctTxt()+cond+')';
+  else if(!isFinite(amt)||amt<=0)info='Activada: '+pctTxt()+cond;
+  else if(fee>0)info='Incluye ¥ '+money(fee)+' de comisión ('+pctTxt()+')';
+  else info='No aplica: el importe es menor a ¥ '+money(S.feeMin).replace(',00','');
+  $('feeInfo').textContent=info;
+  $('feeRow').classList.toggle('on',fee>0);
+}
+
 /* ---------- Render ---------- */
 function render(){
   var amt=parseNum(S.amount),c=cnyEff(),a=arsEff();
-  var usd=(isFinite(amt)&&c.rate)?amt/c.rate:NaN;
+  var fee=feeFor(amt),gross=isFinite(amt)?amt+fee:NaN;
+  var usd=(isFinite(gross)&&c.rate)?gross/c.rate:NaN;
   var ars=(isFinite(usd)&&a.rate)?usd*a.rate:NaN;
   $('outUsd').textContent=isFinite(amt)?money(usd):'—';
   $('outArs').textContent=isFinite(amt)?money(ars):'—';
   $('outVia').textContent=a.src==='manual'?'con dólar manual':'con dólar '+typeName(S.tipo)+(a.est?' (estimado)':'');
   $('seal').classList.toggle('manual',c.src==='manual');
+  renderFee(amt,fee);
 
   // estado
   var st=$('status'),manual=c.src==='manual'||a.src==='manual',cached=c.src==='cache'||a.src==='cache'||c.src==='none'||a.src==='none';
@@ -442,6 +480,7 @@ function render(){
   d+='<div class="drow"><span>1 ¥ en pesos</span><span class="num">'+(c.rate&&a.rate?'$ '+money(a.rate/c.rate):'—')+'</span></div>';
   d+='<div class="drow"><span>Fuente del yuan</span><span>'+(c.src==='manual'?'Manual (cargado por vos)':S.cache.cny?S.cache.cny.src+', '+ago(S.cache.cny.ts):srcTxt[c.src])+'</span></div>';
   d+='<div class="drow"><span>Fuente del dólar</span><span>'+(a.src==='manual'?'Manual (cargado por vos)':S.cache.ars?S.cache.ars.src+', '+ago(S.cache.ars.ts):srcTxt[a.src])+'</span></div>';
+  d+='<div class="drow"><span>Comisión del pago</span><span>'+(S.feeOn?pctTxt()+(S.feeMin?' desde ¥ '+money(S.feeMin).replace(',00',''):''):'Desactivada')+'</span></div>';
   $('details').innerHTML=d;
 
   renderNotices(c,a);
@@ -509,6 +548,7 @@ $('clear').onclick=function(){amountEl.value='';S.amount='';save();render();amou
 $('chips').innerHTML=CHIPS.map(function(n){return'<button class="chip num" data-chip="'+n+'">¥ '+n.toLocaleString('es-AR')+'</button>'}).join('');
 $('chips').addEventListener('click',function(e){var b=e.target.closest('[data-chip]');if(!b)return;amountEl.value=b.dataset.chip;S.amount=b.dataset.chip;save();render()});
 $('refresh').onclick=function(){refresh()};
+$('feeToggle').addEventListener('change',function(){S.feeOn=this.checked;save();render();toast(S.feeOn?'Comisión de '+pctTxt()+' sumada':'Comisión desactivada')});
 
 /* ---------- Configuración ---------- */
 var draft={};
@@ -523,7 +563,9 @@ function openSheet(){
   $('cnyHint').textContent=c?'API: 1 US$ = '+f4.format(c.rate)+' ¥ ('+c.src+', '+ago(c.ts)+')':'La API del yuan no respondió todavía.';
   $('arsHint').textContent=q?'API, dólar '+typeName(S.tipo)+': $ '+money(q.venta):'La API del dólar no respondió todavía.';
   $('cnyCopy').style.display=c?'':'none';$('arsCopy').style.display=q?'':'none';
-  $('cnyErr').textContent='';$('arsErr').textContent='';
+  $('cnyErr').textContent='';$('arsErr').textContent='';$('feeErr').textContent='';
+  $('feePct').value=String(S.feePct).replace('.',',');
+  $('feeMin').value=S.feeMin?String(S.feeMin).replace('.',','):'';
   $('sheetBg').classList.add('open');
 }
 function closeSheet(){$('sheetBg').classList.remove('open')}
@@ -538,7 +580,12 @@ $('saveSettings').onclick=function(){
   $('cnyErr').textContent='';$('arsErr').textContent='';
   if(draft.cny==='manual'&&!(cv>4&&cv<12)){$('cnyErr').textContent='Ingresá un valor entre 4 y 12 yuanes por dólar.';ok=false}
   if(draft.ars==='manual'&&!(av>1)){$('arsErr').textContent='Ingresá cuántos pesos vale 1 dólar.';ok=false}
+  var fp=parseNum($('feePct').value),fmRaw=$('feeMin').value.trim(),fm=fmRaw?parseNum(fmRaw):0;
+  $('feeErr').textContent='';
+  if(!(fp>=0&&fp<=20)){$('feeErr').textContent='Ingresá un porcentaje entre 0 y 20.';ok=false}
+  else if(!(fm>=0)){$('feeErr').textContent='El monto mínimo tiene que ser un número (o dejalo vacío).';ok=false}
   if(!ok)return;
+  S.feePct=fp;S.feeMin=fm;
   if(draft.cny==='manual'){S.cnyManual=cv;if(S.cache.cny)S.ackCny=+S.cache.cny.rate.toFixed(4)}
   if(draft.ars==='manual'){S.arsManual=av;var q=quote(S.tipo);if(q)S.ackArs=+q.venta.toFixed(2)}
   S.cnyMode=draft.cny;S.arsMode=draft.ars;
