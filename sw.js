@@ -1,6 +1,6 @@
 // Guarda la app en el teléfono para que abra aunque no haya internet.
 // Las cotizaciones no se cachean acá: la app guarda la última en localStorage.
-const CACHE = 'yuanar-v3';
+const CACHE = 'cambioyuan-v1';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {

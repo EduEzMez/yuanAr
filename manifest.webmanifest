@@ -1,6 +1,6 @@
 {
-  "name": "YuanAR — Yuan, dólar y peso",
-  "short_name": "YuanAR",
+  "name": "CambioYuan — Yuan, dólar y peso",
+  "short_name": "CambioYuan",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

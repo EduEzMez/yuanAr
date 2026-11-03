@@ -3,18 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>YuanAR — Yuan, dólar y peso</title>
+<title>CambioYuan — Yuan, dólar y peso</title>
 <meta name="description" content="Convertí yuanes a dólares y pesos argentinos con el tipo de dólar que elijas.">
 <meta name="theme-color" content="#0F7A63">
-<meta property="og:title" content="YuanAR — Yuan, dólar y peso">
+<meta property="og:title" content="CambioYuan — Yuan, dólar y peso">
 <meta property="og:description" content="Cuánto es en dólares y en pesos lo que pagás en China.">
 <meta property="og:type" content="website">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="YuanAR">
+<meta name="apple-mobile-web-app-title" content="CambioYuan">
 <script>
-(function(){try{var t=localStorage.getItem('yuanar:theme');
+(function(){try{
+['v1','theme','installDismissed'].forEach(function(k){var o='yuanar:'+k,n='cambioyuan:'+k,v=localStorage.getItem(o);
+if(v!==null){if(localStorage.getItem(n)===null)localStorage.setItem(n,v);localStorage.removeItem(o);}});}catch(e){}})();
+(function(){try{var t=localStorage.getItem('cambioyuan:theme');
 if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
 window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__bip=e;});
 </script>
@@ -175,7 +178,7 @@ h2{font-size:1rem;font-weight:700;margin:22px 0 4px}
 <body>
 <div class="app">
   <header>
-    <div class="brand">YuanAR<small>Yuan, dólar y peso</small></div>
+    <div class="brand">CambioYuan<small>Yuan, dólar y peso</small></div>
     <div class="spacer"></div>
     <span id="status" class="pill loading" role="status">Cargando</span>
     <button id="refresh" class="icon-btn" aria-label="Actualizar cotizaciones">
@@ -207,7 +210,7 @@ h2{font-size:1rem;font-weight:700;margin:22px 0 4px}
       </div>
       <div class="install" id="installCard" hidden>
         <img src="icon-192.png" alt="">
-        <p><b>Instalá YuanAR</b>Queda en la pantalla de inicio y abre aunque no haya internet.</p>
+        <p><b>Instalá CambioYuan</b>Queda en la pantalla de inicio y abre aunque no haya internet.</p>
         <button class="btn" id="installBtn">Instalar</button>
         <button class="x" id="installDismiss" aria-label="Ocultar sugerencia de instalación">×</button>
       </div>
@@ -258,7 +261,7 @@ h2{font-size:1rem;font-weight:700;margin:22px 0 4px}
     <div class="field" id="installField">
       <b>Instalar la app</b>
       <p class="hint" style="margin-top:0">Recomendado antes de viajar: así abre sin conexión.</p>
-      <button class="btn ghost block" id="installBtn2" style="margin-top:10px">Instalar YuanAR</button>
+      <button class="btn ghost block" id="installBtn2" style="margin-top:10px">Instalar CambioYuan</button>
     </div>
 
     <div class="field" style="display:grid;gap:10px">
@@ -270,7 +273,7 @@ h2{font-size:1rem;font-weight:700;margin:22px 0 4px}
 </div>
 <div class="sheet-bg" id="helpBg">
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
-    <h3 id="helpTitle">Instalar YuanAR</h3>
+    <h3 id="helpTitle">Instalar CambioYuan</h3>
     <div id="helpBody"></div>
     <div class="field"><button class="btn block" id="helpClose">Entendido</button></div>
   </div>
@@ -280,7 +283,7 @@ h2{font-size:1rem;font-weight:700;margin:22px 0 4px}
 <script>
 (function(){
 'use strict';
-var LS='yuanar:v1';
+var LS='cambioyuan:v1';
 var TYPES=[
   {k:'oficial',n:'Oficial'},{k:'blue',n:'Blue'},{k:'bolsa',n:'MEP'},
   {k:'contadoconliqui',n:'CCL'},{k:'tarjeta',n:'Tarjeta'},{k:'cripto',n:'Cripto'},{k:'mayorista',n:'Mayorista'}
@@ -543,7 +546,7 @@ $('saveSettings').onclick=function(){
 };
 $('resetAll').onclick=function(){
   if(!confirm('¿Borrar la configuración y las cotizaciones guardadas?'))return;
-  try{localStorage.removeItem(LS);localStorage.removeItem(THEME_KEY);localStorage.removeItem('yuanar:installDismissed')}catch(e){}
+  try{localStorage.removeItem(LS);localStorage.removeItem(THEME_KEY);localStorage.removeItem('cambioyuan:installDismissed')}catch(e){}
   applyTheme();
   S=clone(DEF);amountEl.value='';closeSheet();updateInstall();render();refresh();
 };
@@ -551,7 +554,7 @@ $('resetAll').onclick=function(){
 var tt;function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('show')},2200)}
 
 /* ---------- Modo claro / oscuro ---------- */
-var THEME_KEY='yuanar:theme';
+var THEME_KEY='cambioyuan:theme';
 var mq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
 function savedTheme(){try{return localStorage.getItem(THEME_KEY)}catch(e){return null}}
 function currentDark(){var t=savedTheme();if(t==='dark')return true;if(t==='light')return false;return !!(mq&&mq.matches)}
@@ -571,7 +574,7 @@ if(mq){var onMq=function(){if(!savedTheme())applyTheme()};mq.addEventListener?mq
 applyTheme();
 
 /* ---------- Instalar app ---------- */
-var INSTALL_KEY='yuanar:installDismissed';
+var INSTALL_KEY='cambioyuan:installDismissed';
 var deferredPrompt=window.__bip||null;
 var ua=navigator.userAgent;
 var isIOS=/iphone|ipad|ipod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
@@ -590,7 +593,7 @@ function openHelp(){
     b='<p class="hint">En iPhone y iPad se instala desde el menú Compartir (Safari o Chrome).</p><ol class="steps">'+
       '<li>Tocá el botón <b>Compartir</b> '+SHARE_ICON+' en la barra del navegador.</li>'+
       '<li>Bajá y elegí <b>Agregar a inicio</b> '+PLUS_ICON+'.</li>'+
-      '<li>Tocá <b>Agregar</b>. YuanAR aparece en la pantalla de inicio.</li>'+
+      '<li>Tocá <b>Agregar</b>. CambioYuan aparece en la pantalla de inicio.</li>'+
       '<li>Abrila una vez desde ese ícono con internet, así guarda las cotizaciones.</li></ol>';
   }else{
     b='<p class="hint">Este navegador no ofrece la instalación automática.</p><ol class="steps">'+
@@ -611,7 +614,7 @@ function doInstall(){
   openHelp();
 }
 window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferredPrompt=e;updateInstall()});
-window.addEventListener('appinstalled',function(){deferredPrompt=null;updateInstall();toast('YuanAR instalada')});
+window.addEventListener('appinstalled',function(){deferredPrompt=null;updateInstall();toast('CambioYuan instalada')});
 $('installBtn').onclick=doInstall;
 $('installBtn2').onclick=function(){closeSheet();doInstall()};
 $('installDismiss').onclick=function(){try{localStorage.setItem(INSTALL_KEY,'1')}catch(e){}updateInstall();toast('Podés instalarla desde Configuración')};
