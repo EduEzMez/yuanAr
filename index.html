@@ -153,6 +153,11 @@ h2{font-size:1rem;font-weight:700;margin:22px 0 4px}
 .fee{display:flex;align-items:center;gap:12px;margin-top:6px;padding:12px 0 2px;border-top:1px solid var(--line);cursor:pointer}
 .fee > span{flex:1;font-size:.95rem}
 .fee b{display:block;font-weight:700}
+.fee-desc{display:block;font-size:.85rem;color:var(--muted);margin-top:2px}
+.apps{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 6px}
+.app-chip{display:inline-flex;align-items:center;gap:5px;font-size:.8rem;font-weight:700;padding:4px 9px 4px 7px;border-radius:999px;background:var(--paper);border:1px solid var(--line)}
+.app-chip svg{width:14px;height:14px;color:var(--jade)}
+.fee .via{display:block}
 .fee.on .via{color:var(--cinnabar);font-weight:600}
 .switch{appearance:none;-webkit-appearance:none;flex:none;width:50px;height:30px;border-radius:999px;background:var(--line);position:relative;cursor:pointer;transition:background .2s}
 .switch::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
@@ -216,7 +221,15 @@ h2{font-size:1rem;font-weight:700;margin:22px 0 4px}
           <div class="res ars"><div class="lbl"><b>Pesos</b><span id="outVia" class="via">—</span></div><div class="val num" id="outArs">—</div></div>
         </div>
         <label class="fee" id="feeRow" for="feeToggle">
-          <span><b>Sumar comisión del pago</b><span class="via" id="feeInfo"></span></span>
+          <span>
+            <b>Sumar comisión del pago</b>
+            <span class="fee-desc">Lo que cobran al pagar con tarjeta extranjera en</span>
+            <span class="apps">
+              <span class="app-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M10 6h4M9.5 11h2v2h-2zM12.5 14h2v2h-2z"/></svg>Alipay</span>
+              <span class="app-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M10 6h4M9.5 11h2v2h-2zM12.5 14h2v2h-2z"/></svg>WeChat Pay</span>
+            </span>
+            <span class="via" id="feeInfo"></span>
+          </span>
           <input type="checkbox" class="switch" id="feeToggle" role="switch">
         </label>
       </div>
