@@ -16,6 +16,7 @@
 <script>
 (function(){try{var t=localStorage.getItem('yuanar:theme');
 if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__bip=e;});
 </script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
@@ -146,6 +147,15 @@ h2{font-size:1rem;font-weight:700;margin:22px 0 4px}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:12px;font-size:.9rem;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s;z-index:30}
 .toast.show{opacity:1}
 
+.install{display:flex;align-items:center;gap:12px;margin-top:14px;background:var(--surface);border:1.5px dashed var(--jade);border-radius:var(--r-lg);padding:12px 14px}
+.install[hidden],[hidden]{display:none!important}
+.install img{width:44px;height:44px;border-radius:11px;flex:none}
+.install p{flex:1;font-size:.9rem;line-height:1.35}
+.install p b{display:block;font-size:.98rem}
+.install .x{width:32px;height:32px;border-radius:50%;color:var(--muted);font-size:1.2rem;flex:none}
+.steps{margin:14px 0 0 0;padding-left:22px;display:grid;gap:12px}
+.steps li{padding-left:4px}
+.steps svg{width:20px;height:20px;vertical-align:-4px;color:var(--jade)}
 @media (max-width:400px){
   header{gap:6px}
   .icon-btn{width:38px;height:38px}
@@ -195,6 +205,12 @@ h2{font-size:1rem;font-weight:700;margin:22px 0 4px}
           <div class="res ars"><div class="lbl"><b>Pesos</b><span id="outVia" class="via">—</span></div><div class="val num" id="outArs">—</div></div>
         </div>
       </div>
+      <div class="install" id="installCard" hidden>
+        <img src="icon-192.png" alt="">
+        <p><b>Instalá YuanAR</b>Queda en la pantalla de inicio y abre aunque no haya internet.</p>
+        <button class="btn" id="installBtn">Instalar</button>
+        <button class="x" id="installDismiss" aria-label="Ocultar sugerencia de instalación">×</button>
+      </div>
       <div class="notices" id="notices"></div>
     </section>
 
@@ -239,11 +255,24 @@ h2{font-size:1rem;font-weight:700;margin:22px 0 4px}
       <p class="err" id="arsErr"></p>
     </div>
 
+    <div class="field" id="installField">
+      <b>Instalar la app</b>
+      <p class="hint" style="margin-top:0">Recomendado antes de viajar: así abre sin conexión.</p>
+      <button class="btn ghost block" id="installBtn2" style="margin-top:10px">Instalar YuanAR</button>
+    </div>
+
     <div class="field" style="display:grid;gap:10px">
       <button class="btn block" id="saveSettings">Guardar</button>
       <button class="btn ghost block" id="closeSettings">Cancelar</button>
       <button class="linkbtn" id="resetAll" style="color:var(--cinnabar)">Borrar todos los datos guardados</button>
     </div>
+  </div>
+</div>
+<div class="sheet-bg" id="helpBg">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <h3 id="helpTitle">Instalar YuanAR</h3>
+    <div id="helpBody"></div>
+    <div class="field"><button class="btn block" id="helpClose">Entendido</button></div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -498,7 +527,7 @@ function closeSheet(){$('sheetBg').classList.remove('open')}
 $('openSettings').onclick=openSheet;
 $('closeSettings').onclick=closeSheet;
 $('sheetBg').addEventListener('click',function(e){if(e.target===this)closeSheet()});
-document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSheet()});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeSheet();$('helpBg').classList.remove('open')}});
 $('cnyCopy').onclick=function(){$('cnyManual').value=f4.format(S.cache.cny.rate).replace(/\./g,'');setSeg('cny','manual')};
 $('arsCopy').onclick=function(){$('arsManual').value=money(quote(S.tipo).venta);setSeg('ars','manual')};
 $('saveSettings').onclick=function(){
@@ -514,9 +543,9 @@ $('saveSettings').onclick=function(){
 };
 $('resetAll').onclick=function(){
   if(!confirm('¿Borrar la configuración y las cotizaciones guardadas?'))return;
-  try{localStorage.removeItem(LS);localStorage.removeItem(THEME_KEY)}catch(e){}
+  try{localStorage.removeItem(LS);localStorage.removeItem(THEME_KEY);localStorage.removeItem('yuanar:installDismissed')}catch(e){}
   applyTheme();
-  S=clone(DEF);amountEl.value='';closeSheet();render();refresh();
+  S=clone(DEF);amountEl.value='';closeSheet();updateInstall();render();refresh();
 };
 
 var tt;function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('show')},2200)}
@@ -540,6 +569,55 @@ $('themeBtn').onclick=function(){
 };
 if(mq){var onMq=function(){if(!savedTheme())applyTheme()};mq.addEventListener?mq.addEventListener('change',onMq):mq.addListener(onMq)}
 applyTheme();
+
+/* ---------- Instalar app ---------- */
+var INSTALL_KEY='yuanar:installDismissed';
+var deferredPrompt=window.__bip||null;
+var ua=navigator.userAgent;
+var isIOS=/iphone|ipad|ipod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+function isStandalone(){return (window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true}
+function installDismissed(){try{return localStorage.getItem(INSTALL_KEY)==='1'}catch(e){return false}}
+function updateInstall(){
+  var inst=isStandalone();
+  $('installCard').hidden=inst||installDismissed()||!(deferredPrompt||isIOS);
+  $('installField').hidden=inst;
+}
+var SHARE_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>';
+var PLUS_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></svg>';
+function openHelp(){
+  var b;
+  if(isIOS){
+    b='<p class="hint">En iPhone y iPad se instala desde el menú Compartir (Safari o Chrome).</p><ol class="steps">'+
+      '<li>Tocá el botón <b>Compartir</b> '+SHARE_ICON+' en la barra del navegador.</li>'+
+      '<li>Bajá y elegí <b>Agregar a inicio</b> '+PLUS_ICON+'.</li>'+
+      '<li>Tocá <b>Agregar</b>. YuanAR aparece en la pantalla de inicio.</li>'+
+      '<li>Abrila una vez desde ese ícono con internet, así guarda las cotizaciones.</li></ol>';
+  }else{
+    b='<p class="hint">Este navegador no ofrece la instalación automática.</p><ol class="steps">'+
+      '<li>Abrí el menú del navegador (⋮ o ⋯).</li>'+
+      '<li>Elegí <b>Instalar app</b> o <b>Agregar a pantalla de inicio</b>.</li>'+
+      '<li>Si no aparece la opción, abrí esta página en Chrome, Edge o Safari.</li></ol>';
+  }
+  $('helpBody').innerHTML=b;$('helpBg').classList.add('open');
+}
+function closeHelp(){$('helpBg').classList.remove('open')}
+function doInstall(){
+  if(deferredPrompt){
+    var p=deferredPrompt;deferredPrompt=null;
+    p.prompt();
+    p.userChoice.then(function(c){if(c.outcome!=='accepted')toast('Podés instalarla después desde Configuración');updateInstall()});
+    return;
+  }
+  openHelp();
+}
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferredPrompt=e;updateInstall()});
+window.addEventListener('appinstalled',function(){deferredPrompt=null;updateInstall();toast('YuanAR instalada')});
+$('installBtn').onclick=doInstall;
+$('installBtn2').onclick=function(){closeSheet();doInstall()};
+$('installDismiss').onclick=function(){try{localStorage.setItem(INSTALL_KEY,'1')}catch(e){}updateInstall();toast('Podés instalarla desde Configuración')};
+$('helpClose').onclick=closeHelp;
+$('helpBg').addEventListener('click',function(e){if(e.target===this)closeHelp()});
+updateInstall();
 
 /* ---------- Arranque ---------- */
 render();refresh();
