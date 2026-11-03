@@ -9,6 +9,15 @@
 <meta property="og:title" content="CambioYuan — Yuan, dólar y peso">
 <meta property="og:description" content="Cuánto es en dólares y en pesos lo que pagás en China.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://cambioyuan.pages.dev/">
+<meta property="og:image" content="https://cambioyuan.pages.dev/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Sello rojo con el símbolo del yuan y el nombre CambioYuan">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="CambioYuan — Yuan, dólar y peso">
+<meta name="twitter:description" content="Cuánto es en dólares y en pesos lo que pagás en China.">
+<meta name="twitter:image" content="https://cambioyuan.pages.dev/og-image.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -22,7 +31,8 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
 window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__bip=e;});
 </script>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icon-192.png">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="icon-180.png">
 <style>
 /* Sin fuentes externas: Google Fonts está bloqueado en China. Solo fuentes del sistema. */
@@ -63,6 +73,20 @@ header{display:flex;align-items:center;gap:10px;padding:6px 0 14px}
 .brand{font-weight:800;font-size:1.2rem;letter-spacing:-.01em}
 .brand small{display:block;font-weight:500;font-size:.78rem;color:var(--muted);letter-spacing:0}
 .spacer{flex:1}
+.hdr-break{display:none}
+@media (max-width:560px){
+  header{flex-wrap:wrap;row-gap:8px}
+  .hdr-break{display:block;flex-basis:100%;height:0;order:9}
+  #status{order:10}
+}
+.brand-wrap{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{position:relative;width:40px;height:40px;color:var(--cinnabar);flex:none}
+.logo svg{width:100%;height:100%;display:block}
+.ink-ring{position:absolute;inset:3px;border:2px solid var(--cinnabar);border-radius:9px;opacity:0;pointer-events:none}
+.logo.stamp svg{animation:stamp .7s cubic-bezier(.3,.7,.4,1.25) both}
+.logo.stamp .ink-ring{animation:ring .6s .3s ease-out both}
+@keyframes stamp{0%{transform:translateY(-12px) scale(1.6);opacity:0}45%{transform:scale(.88);opacity:1}72%{transform:scale(1.05)}100%{transform:none;opacity:1}}
+@keyframes ring{0%{opacity:.55;transform:rotate(-4deg) scale(.92)}100%{opacity:0;transform:rotate(-4deg) scale(1.55)}}
 .pill{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;padding:6px 10px;border-radius:999px;background:var(--jade-soft);color:var(--jade);white-space:nowrap}
 .pill::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
 .pill.manual{background:var(--cinnabar-soft);color:var(--cinnabar)}
@@ -176,6 +200,8 @@ h2{font-size:1rem;font-weight:700;margin:22px 0 4px}
   header{gap:6px}
   .icon-btn{width:38px;height:38px}
   .brand small{display:none}
+  .logo{width:34px;height:34px}
+  .brand-wrap{gap:8px}
   .pill{padding:6px 8px}
 }
 @media (min-width:900px){
@@ -191,8 +217,9 @@ h2{font-size:1rem;font-weight:700;margin:22px 0 4px}
 <body>
 <div class="app">
   <header>
-    <div class="brand">CambioYuan<small>Yuan, dólar y peso</small></div>
+    <div class="brand-wrap"><span class="logo stamp" id="logo"><svg class="logo-seal" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><mask id="inkLogo"><rect width="64" height="64" fill="#fff"/><g fill="#000"><circle cx="8.0" cy="52.6" r="0.80"/><circle cx="10.7" cy="55.7" r="0.95"/><circle cx="52.6" cy="7.4" r="0.48"/><circle cx="11.1" cy="56.4" r="0.64"/><circle cx="13.7" cy="56.1" r="0.79"/><circle cx="31.8" cy="57.8" r="0.67"/><circle cx="45.5" cy="56.2" r="0.98"/><circle cx="57.8" cy="22.2" r="0.54"/><circle cx="57.9" cy="28.4" r="0.94"/><circle cx="6.9" cy="41.0" r="1.02"/><circle cx="57.2" cy="41.1" r="0.86"/><circle cx="56.9" cy="22.1" r="0.55"/><circle cx="31.7" cy="6.2" r="1.00"/><circle cx="58.0" cy="12.7" r="0.97"/><circle cx="6.6" cy="41.5" r="0.50"/><circle cx="19.7" cy="57.0" r="0.45"/><circle cx="58.1" cy="33.6" r="1.02"/><circle cx="30.0" cy="8.1" r="0.69"/><circle cx="56.1" cy="13.8" r="0.55"/><circle cx="7.1" cy="36.6" r="0.82"/><circle cx="49.2" cy="7.3" r="0.67"/><circle cx="14.3" cy="7.0" r="0.54"/><circle cx="42.0" cy="41.6" r="0.42"/><circle cx="39.7" cy="32.7" r="0.35"/><circle cx="50.1" cy="26.5" r="0.47"/><circle cx="48.6" cy="42.3" r="0.37"/><circle cx="37.7" cy="15.6" r="0.51"/><circle cx="32.7" cy="48.3" r="0.39"/></g></mask></defs><g transform="rotate(-4 32 32)" mask="url(#inkLogo)"><rect x="6" y="6" width="52" height="52" rx="8" fill="currentColor"/><rect x="11.5" y="11.5" width="41" height="41" rx="4.5" fill="none" stroke="#fff" stroke-width="2.4"/><path d="M22.5 17 32 30.5 41.5 17M32 30.5V47.5M24 33.5h16M24 40.5h16" fill="none" stroke="#fff" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round"/></g></svg><span class="ink-ring"></span></span><div class="brand">CambioYuan<small>Yuan, dólar y peso</small></div></div>
     <div class="spacer"></div>
+    <span class="hdr-break" aria-hidden="true"></span>
     <span id="status" class="pill loading" role="status">Cargando</span>
     <button id="refresh" class="icon-btn" aria-label="Actualizar cotizaciones">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
@@ -416,6 +443,7 @@ function refresh(){
     if(r[1].status==='fulfilled'){S.cache.ars=r[1].value;run.errArs=false}else run.errArs=true;
     if(S.cnyMode==='api'&&!S.cache.cny&&S.cnyManual)S.cnyMode='manual';
     save();run.loading=false;render();
+    if(!run.first&&(r[0].status==='fulfilled'||r[1].status==='fulfilled'))stampLogo();
     if(run.first){run.first=false}else toast(run.errCny||run.errArs?'Algunas cotizaciones no se pudieron actualizar':'Cotizaciones actualizadas');
   });
 }
@@ -440,6 +468,9 @@ function arsEff(){
 }
 function typeName(k){for(var i=0;i<TYPES.length;i++)if(TYPES[i].k===k)return TYPES[i].n;return k}
 function differs(a,b){return a&&b&&Math.abs(a-b)/b>0.0005}
+
+/* ---------- Logo ---------- */
+function stampLogo(){var l=$('logo');l.classList.remove('stamp');void l.offsetWidth;l.classList.add('stamp')}
 
 /* ---------- Comisión ---------- */
 function feeApplies(amt){return S.feeOn&&S.feePct>0&&isFinite(amt)&&amt>0&&!(S.feeMin&&amt<S.feeMin)}

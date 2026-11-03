@@ -1,7 +1,7 @@
 // Guarda la app en el teléfono para que abra aunque no haya internet.
 // Las cotizaciones no se cachean acá: la app guarda la última en localStorage.
-const CACHE = 'cambioyuan-v4';
-const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png'];
+const CACHE = 'cambioyuan-v5';
+const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png', './favicon.svg'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)));
