@@ -87,6 +87,12 @@ header{display:flex;align-items:center;gap:10px;padding:6px 0 14px}
 .logo.stamp .ink-ring{animation:ring .6s .3s ease-out both}
 @keyframes stamp{0%{transform:translateY(-12px) scale(1.6);opacity:0}45%{transform:scale(.88);opacity:1}72%{transform:scale(1.05)}100%{transform:none;opacity:1}}
 @keyframes ring{0%{opacity:.55;transform:rotate(-4deg) scale(.92)}100%{opacity:0;transform:rotate(-4deg) scale(1.55)}}
+/* Pulso periódico: cada 7 s el sello late suave y suelta una onda de tinta */
+.logo{--pulse:7s;animation:pulse var(--pulse) ease-in-out 3s infinite}
+.logo::after{content:"";position:absolute;inset:3px;border:2px solid var(--cinnabar);border-radius:9px;opacity:0;pointer-events:none;
+  animation:pulseRing var(--pulse) ease-out 3s infinite}
+@keyframes pulse{0%,13%,100%{transform:scale(1)}4%{transform:scale(1.12)}8%{transform:scale(.96)}}
+@keyframes pulseRing{0%,2%{opacity:0;transform:rotate(-4deg) scale(.95)}4%{opacity:.45}14%,100%{opacity:0;transform:rotate(-4deg) scale(1.5)}}
 .pill{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;padding:6px 10px;border-radius:999px;background:var(--jade-soft);color:var(--jade);white-space:nowrap}
 .pill::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
 .pill.manual{background:var(--cinnabar-soft);color:var(--cinnabar)}
